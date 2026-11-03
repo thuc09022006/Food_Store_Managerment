@@ -1,0 +1,16 @@
+package com.foodstore.menu;
+
+import java.math.BigDecimal;
+
+/** Đồ uống. */
+public class Drink extends Product {
+
+    public Drink(long id, long categoryId, String name, BigDecimal price, String description, boolean active) {
+        super(id, categoryId, name, price, description, active);
+    }
+
+    @Override
+    public ProductType getType() {
+        return ProductType.DRINK;
+    }
+}

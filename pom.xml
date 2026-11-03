@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        Phiên bản Spring Boot cả nhóm dùng CHUNG. Mình ghim 4.0.8 (dòng 4.0.x).
+        Nếu Maven báo không tải được bản này, đổi sang bản 4.0.x mới nhất trên start.spring.io
+        và báo cả nhóm đổi cùng lúc (xem Boundaries trong SPEC.md: thêm/đổi dependency phải hỏi nhóm).
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.8</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.foodstore</groupId>
+    <artifactId>foodstore-management</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <name>foodstore-management</name>
+    <description>Hệ thống quản lý cửa hàng đồ ăn — đồ án OOP (Swing + Spring Boot + MySQL)</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <dependencies>
+        <!-- Spring Boot lõi: chỉ dùng cho DI + cấu hình, KHÔNG có web server -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- JdbcTemplate + HikariCP + @Transactional -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <!-- Driver MySQL (phiên bản do Spring Boot quản lý) -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Chỉ lấy BCryptPasswordEncoder, không kéo cả Spring Security -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+
+        <!-- JUnit 5 + Mockito -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.foodstore.FoodStoreApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

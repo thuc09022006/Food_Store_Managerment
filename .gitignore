@@ -1,0 +1,21 @@
+# Maven
+target/
+
+# File cấu hình cục bộ (có thể chứa mật khẩu DB)
+application-local.properties
+*.local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+nbproject/
+out/
+
+# Hệ điều hành / log
+.DS_Store
+Thumbs.db
+*.log
