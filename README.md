@@ -1,6 +1,6 @@
 # FoodStore-Management-OOP
 
-Hệ thống quản lý cửa hàng đồ ăn — đồ án OOP của nhóm 5 người. Desktop app (Java Swing) + Spring Boot (chỉ làm DI/config) + MySQL, SQL viết tay qua `JdbcTemplate`.
+Hệ thống quản lý cửa hàng đồ ăn — đồ án OOP Desktop app (Java Swing) + Spring Boot (chỉ làm DI/config) + MySQL, SQL viết tay qua `JdbcTemplate`.
 
 Tài liệu thiết kế: [`SPEC.md`](SPEC.md) · Kế hoạch: [`plan.md`](plan.md) · Phase 0: [`foundation.md`](foundation.md) · Sơ đồ: [`docs/er-diagram.md`](docs/er-diagram.md)
 
