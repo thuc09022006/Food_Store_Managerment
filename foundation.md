@@ -1,7 +1,5 @@
 # Foundation (shared/root — Phase 0, tuần tự, chặn tất cả)
 
-Owner: 1-2 người. Không thuộc 5 module — đây là các file gốc mà mọi module phụ thuộc. Chỉ chỉnh ở đây; owner module không sửa sau đó (xem Boundaries trong `SPEC.md`).
-
 ## Files
 
 | File                                                                                                                                                                  | Mục đích                                                                                                                                                                                                                                                                  |

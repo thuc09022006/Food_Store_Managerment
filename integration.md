@@ -1,6 +1,6 @@
-# Phase 3: Integration & Demo Prep (cả nhóm)
+# Phase 3: Integration & Demo Prep 
 
-Bắt đầu ngay khi 3-4 module sẵn sàng, không đợi đủ cả 5. Mục tiêu: luồng thanh toán xuyên 4 module chạy đúng, rollback và tranh chấp đồng thời đã kiểm chứng thật, phân quyền đúng ở server, mọi mục Success Criteria của `SPEC.md` được đánh dấu.
+ Mục tiêu: luồng thanh toán xuyên 4 module chạy đúng, rollback và tranh chấp đồng thời đã kiểm chứng thật, phân quyền đúng ở server, mọi mục Success Criteria của `SPEC.md` được đánh dấu.
 
 ## Tasks
 

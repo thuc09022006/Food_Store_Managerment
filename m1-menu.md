@@ -1,14 +1,13 @@
-# M1: Menu (bản sửa)
+# M1: Menu 
 
 **Folder:** `src/main/java/com/foodstore/menu/` · **Template:** `src/main/resources/templates/menu/` · **Owner:** Owner 1 (điền tên) · **Phase 1** (song song, sau khi Foundation merge)
 
 **Stack:** Spring Web MVC, Thymeleaf, JdbcTemplate, MySQL, `mvn test`.
 
-## Thay đổi so với bản cũ
 
 | # | Thay đổi | Lý do |
 | --- | --- | --- |
-| 1 | Xóa món là thành phần của combo **đang bán** → từ chối, nêu tên combo | Bản cũ tự mâu thuẫn: vừa bảo "chuyển ngừng bán" vừa cấm ngừng bán |
+| 1 | Xóa món là thành phần của combo **đang bán** → từ chối, nêu tên combo |
 | 2 | `type` của sản phẩm bất biến sau khi tạo | Tránh combo lồng combo và dòng `combo_components` mồ côi |
 | 3 | `create/update` combo đang bán cũng kiểm thành phần đang bán | Giữ cùng bất biến với `setActive(true)` |
 | 4 | Bắt `DataIntegrityViolationException` / `DuplicateKeyException`, thêm UNIQUE index | Check-rồi-ghi không an toàn khi chạy đồng thời |
@@ -16,10 +15,10 @@
 | 6 | `type` lạ → `BusinessException`, `ProductForm.type` thêm `@NotBlank` | Tránh lỗi 500 khi gửi tay |
 | 7 | Tách `ProductAdminService`, giữ nguyên `ProductService` của Foundation | Không làm gãy fake/stub của M2, M3, M5 |
 | 8 | `MenuControllerTest` dùng `csrf()` | Nếu không, 403 có thể do thiếu token chứ không do thiếu quyền |
-| 9 | Thêm `JdbcProductDaoTest` (integration) | DAO chứa nhiều SQL nhất nhưng bản cũ chỉ "chạy tay" |
+| 9 | Thêm `JdbcProductDaoTest` (integration) | DAO chứa nhiều SQL nhất|
 | 10 | `LIKE ... ESCAPE '\\'`; `findComponentsByComboIds` để tránh N+1 | Chính xác và hiệu năng |
 
-Các mục 2, 5, 7 là **quyết định thiết kế do bản sửa này chọn**; cả nhóm cần đồng ý trước khi code.
+Các mục 2, 5, 7 là **quyết định thiết kế do bản sửa này chọn**;
 
 ## Files
 
@@ -108,8 +107,8 @@ Quyền do `SecurityConfig` sinh từ `Feature.MENU` (GET → VIEW, method khác
 
 | Chủ đề | Quy tắc |
 | --- | --- |
-| Tên món | Bắt buộc, không rỗng sau `trim()`. Spec không yêu cầu tên món duy nhất (nếu nhóm muốn, thêm quy tắc riêng) |
-| Tên danh mục | Không trùng tên. Nguồn sự thật là DB: dùng UNIQUE index trên cột `name`, service kiểm `existsByName` để báo lỗi sớm, đồng thời bắt `DuplicateKeyException` → `BusinessException`. Collation mặc định của MySQL không phân biệt hoa/thường và thường cả dấu; nhóm phải chốt "Cà phê" và "Ca phe" có trùng không và dùng collation tương ứng |
+| Tên món | Bắt buộc, không rỗng sau `trim()`. Spec không yêu cầu tên món duy nhất (nếu muốn, thêm quy tắc riêng) |
+| Tên danh mục | Không trùng tên. Nguồn sự thật là DB: dùng UNIQUE index trên cột `name`, service kiểm `existsByName` để báo lỗi sớm, đồng thời bắt `DuplicateKeyException` → `BusinessException`. Collation mặc định của MySQL không phân biệt hoa/thường và thường cả dấu;  phải chốt "Cà phê" và "Ca phe" có trùng không và dùng collation tương ứng |
 | Giá | `price >= 0` (so bằng `compareTo`). `price.scale() > 0` (sau `stripTrailingZeros` nếu muốn chấp nhận `10000.00`) → **từ chối**. Vượt `DECIMAL(12,0)`: `price.precision() - price.scale() > 12` → từ chối |
 | Loại (`type`) | Bắt buộc, thuộc `FOOD/DRINK/COMBO`. Giá trị lạ → `BusinessException` (bắt `IllegalArgumentException` từ factory). **Bất biến sau khi tạo**: `update` với `type` khác loại hiện tại → từ chối |
 | Trạng thái khi tạo | `active = TRUE` mặc định. Nếu là combo thì áp quy tắc Combo bên dưới |

@@ -1,6 +1,6 @@
 # FoodStore-Management-OOP
 
-Hệ thống quản lý cửa hàng đồ ăn — đồ án OOP của nhóm 5 người. Ứng dụng web: **Spring Boot + Spring Web MVC + Thymeleaf + Spring Security**, MySQL, SQL viết tay qua `JdbcTemplate`.
+Hệ thống quản lý cửa hàng đồ ăn — đồ án OOP. Ứng dụng web: **Spring Boot + Spring Web MVC + Thymeleaf + Spring Security**, MySQL, SQL viết tay qua `JdbcTemplate`.
 
 Tài liệu thiết kế: [`SPEC.md`](SPEC.md) · Kế hoạch: [`plan.md`](plan.md) · Phase 0: [`foundation.md`](foundation.md) · Sơ đồ: [`docs/er-diagram.md`](docs/er-diagram.md)
 

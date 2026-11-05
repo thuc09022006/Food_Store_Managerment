@@ -1,21 +1,21 @@
 # Spec: Hệ thống Quản lý Cửa hàng Đồ ăn (FoodStore) — Spring Web MVC
 
-## Status: DRAFT v3 — chuyển từ Swing sang ứng dụng web Spring MVC; các quyết định mặc định ở mục "Quyết định thiết kế", nhóm xác nhận mục "Open Questions"
+## Status: DRAFT v3 — chuyển từ Swing sang ứng dụng web Spring MVC; các quyết định mặc định ở mục "Quyết định thiết kế",  xác nhận mục "Open Questions"
 
-Spec đối chiếu với mô tả bảng ở mục Data Model. **Nguồn duy nhất của schema là `src/main/resources/schema.sql`**; khác nhau thì sửa spec cho khớp schema (hoặc hỏi nhóm trước khi sửa schema).
+Spec đối chiếu với mô tả bảng ở mục Data Model. **Nguồn duy nhất của schema là `src/main/resources/schema.sql`**; khác nhau thì sửa spec cho khớp schema (hoặc hỏi  trước khi sửa schema).
 
 ## Context
 
 - Đồ án môn OOP: thực hành kế thừa, đa hình, đóng gói, trừu tượng và design pattern.
-- Nhóm 5 người — mỗi người sở hữu **một module end-to-end** (model + DAO + service + controller + template giao diện).
+-  sở hữu **một module end-to-end** (model + DAO + service + controller + template giao diện).
 - Stack: Spring Boot + **Spring Web MVC** + Thymeleaf (render phía server) + Spring Security; MySQL; SQL viết tay qua `JdbcTemplate` (không dùng ORM) để luyện viết SQL trực tiếp.
 
 ## Assumptions
 
 (Sai chỗ nào thì sửa ngay, spec dưới đây viết dựa trên các giả định này.)
 
-1. **Spring Boot + Spring Web MVC**, Java 21, Maven, một module Maven (một `pom.xml`). Cả nhóm dùng chung một phiên bản Spring Boot, chốt ở Phase 0.
-2. **Ứng dụng web render phía server bằng Thymeleaf** (`@Controller` trả tên view). Không phải SPA, không bắt buộc REST. *Nếu nhóm dùng JSP hoặc frontend riêng (React/Vue gọi REST) thì báo để sửa: phần model/DAO/service giữ nguyên, chỉ đổi controller và view.*
+1. **Spring Boot + Spring Web MVC**, Java 21, Maven, một module Maven (một `pom.xml`).  dùng chung một phiên bản Spring Boot, chốt ở Phase 0.
+2. **Ứng dụng web render phía server bằng Thymeleaf** (`@Controller` trả tên view). Không phải SPA, không bắt buộc REST.
 3. **Spring Security** cho đăng nhập (form login, session), băm mật khẩu BCrypt, CSRF và phân quyền theo URL.
 4. **Plain JDBC qua `JdbcTemplate`**, không dùng JPA/Hibernate.
 5. **MySQL 8.0.16+** (từ bản này mới kiểm tra ràng buộc `CHECK`), InnoDB, một schema `foodstore_db`.
@@ -24,7 +24,7 @@ Spec đối chiếu với mô tả bảng ở mục Data Model. **Nguồn duy nh
 8. "5 module" là **package/feature-area trong một app**, không phải 5 service triển khai riêng.
 9. Repo: https://github.com/thuc09022006/Food_Store_Managerment (công khai).
 
-## Quyết định thiết kế (mặc định — nhóm có thể đổi, nhưng sửa spec trước khi code)
+## Quyết định thiết kế (mặc định —  có thể đổi, nhưng sửa spec trước khi code)
 
 | #   | Chủ đề                         | Quyết định                                                                                                                                                                                                                                                                                       |
 |-----|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
