@@ -1,6 +1,7 @@
 -- FoodStore Management System — dữ liệu mẫu (seed)
 -- Chạy MỘT LẦN trên database mới, SAU schema.sql:
---   mysql -u root -p foodstore_db < src/main/resources/data.sql
+--   mysql -u root -p --default-character-set=utf8mb4 foodstore_db -e "source src/main/resources/data.sql"
+-- (dùng -e "source ..." vì toán tử "<" KHÔNG chạy trong PowerShell; chạy tại thư mục gốc của repo)
 -- Chạy lần hai sẽ lỗi trùng khóa. Muốn nạp lại: DROP DATABASE, tạo lại, chạy schema.sql rồi data.sql.
 --
 -- Tài khoản đăng nhập mẫu (CHỈ DÙNG KHI PHÁT TRIỂN, đổi mật khẩu trước khi demo ngoài nhóm):
@@ -68,12 +69,12 @@ INSERT INTO ingredients (id, name, unit, stock_quantity, min_quantity) VALUES
  (4,  'Gạo',           'kg',  30.000, 10.000),
  (5,  'Thịt heo',      'kg',  10.000,  3.000),
  (6,  'Bún tươi',      'kg',  12.000,  4.000),
- (7,  'Tôm',           'kg',   6.000,  2.000),
+ (7,  'Tôm',           'kg',   2.050,  2.000),   -- sát mức tối thiểu: bán 1 phần Gỏi cuốn (0,050 kg) đưa về đúng mức → phát cảnh báo
  (8,  'Bánh tráng',    'gói', 20.000,  5.000),
  (9,  'Trà',           'kg',   2.000,  0.500),
  (10, 'Cà phê bột',    'kg',   5.000,  1.000),
  (11, 'Sữa đặc',       'hộp', 24.000,  6.000),
- (12, 'Cam',           'kg',  10.000,  3.000);
+ (12, 'Cam',           'kg',   2.500,  3.000);   -- đã dưới mức tối thiểu: trang Kho hiện cảnh báo ngay
 
 -- ---------- recipes: lượng nguyên liệu cho 1 phần (combo không có công thức, được mở rộng theo thành phần) ----------
 INSERT INTO recipes (product_id, ingredient_id, quantity) VALUES

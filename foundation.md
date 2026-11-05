@@ -6,97 +6,107 @@ Owner: 1-2 người. Không thuộc 5 module — đây là các file gốc mà m
 
 | File                                                                                                                                                                  | Mục đích                                                                                                                                                                                                                                                                  |
 |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `pom.xml`                                                                                                                                                             | Build Maven — Spring Boot parent, Java 21, `spring-boot-starter`, `spring-boot-starter-jdbc`, `mysql-connector-j`, `spring-security-crypto`, JUnit 5 + Mockito                                                                                                            |
-| `.gitignore`                                                                                                                                                          | Loại `target/`, file override `application-local.properties`, file IDE                                                                                                                                                                                                    |
-| `README.md`                                                                                                                                                           | Các bước cài đặt chạy từ máy trống, dùng được trên bash/cmd/PowerShell                                                                                                                                                                                                    |
-| `docs/er-diagram.md`                                                                                                                                                  | ER diagram dạng Mermaid, khớp `schema.sql`                                                                                                                                                                                                                                |
-| `src/main/java/com/foodstore/FoodStoreApplication.java`                                                                                                               | `main()` — khởi tạo Spring `ApplicationContext` (`headless(false)`), rồi mở Swing UI trên EDT                                                                                                                                                                             |
-| `src/main/java/com/foodstore/common/BusinessException.java`                                                                                                           | `extends RuntimeException` — gốc của mọi lỗi nghiệp vụ; thông điệp tiếng Việt hiển thị được cho người dùng                                                                                                                                                                |
-| `src/main/java/com/foodstore/config/AppConfig.java`                                                                                                                   | `@Configuration` — bean `PasswordEncoder` (`BCryptPasswordEncoder`)                                                                                                                                                                                                       |
-| `src/main/java/com/foodstore/config/StoreProperties.java`                                                                                                             | `@ConfigurationProperties(prefix = "store")` (record) — VAT, ngày cảnh báo hết hạn, ngưỡng hạng, % giảm theo hạng, `loyalty.amount-per-point`                                                                                                                             |
-| `src/main/resources/application.properties`                                                                                                                           | Datasource URL/username/password (qua biến môi trường `DB_URL`/`DB_USERNAME`/`DB_PASSWORD`, hoặc file `application-local.properties` nằm trong `.gitignore`) + `store.vat-rate`, `store.expiry-warning-days`, `store.loyalty.*`                                           |
-| `src/main/resources/schema.sql`                                                                                                                                       | `CREATE TABLE` cho cả 15 bảng, đúng thứ tự khóa ngoại: `staff`, `categories`, `products`, `combo_components`, `dining_tables`, `customers`, `vouchers`, `orders`, `order_items`, `suppliers`, `ingredients`, `recipes`, `stock_imports`, `stock_import_items`, `payments` |
-| `src/main/resources/data.sql`                                                                                                                                         | Seed: 4 staff (mỗi vai trò 1, mật khẩu BCrypt), danh mục, món gồm ít nhất 1 combo, bàn, nguyên liệu + công thức, voucher (1 còn hạn, 1 hết hạn), khách hàng                                                                                                               |
-| `menu/ProductService`, `orders/OrderService`, `orders/TableService`, `inventory/InventoryService`, `customers/CustomerService`                                        | **Interface Service** (chỉ khai báo chữ ký — xem mục Contract). Owner module cài đặt trong lớp `XxxServiceImpl` (`@Service`) cùng package                                                                                                                                 |
-| `menu/Product`, `Food`, `Drink`, `Combo`, `ComboComponent`, `Category`; `orders/Order`, `OrderItem`, `OrderStatus`, `OrderType`; `customers/Customer`, `CustomerTier` | Model tối thiểu mà các interface Service ở trên tham chiếu — Foundation tạo bản đầu để cả dự án biên dịch được; owner module mở rộng sau                                                                                                                                  |
-| `auth/*` (Phase 0 của M5)                                                                                                                                             | `Staff` + 4 vai trò, `Screen`, `AccessLevel`, `StaffRole`, `StaffAccount`, `StaffDao`/`JdbcStaffDao`, `AuthService`, `AuthenticationFailedException`, `CurrentSession`, `LoginFrame`, `MainFrame` (khung, panel giữ chỗ), `PlaceholderPanel`                                 |
-| `src/main/java/com/foodstore/menu/JdbcCategoryDao.java`                                                                                                               | DAO mẫu hoàn chỉnh (cùng `CategoryDao`) làm tham chiếu cho cả nhóm                                                                                                                                                                                                        |
-| `src/test/java/com/foodstore/auth/AuthServiceTest.java`                                                                                                               | Unit test đăng nhập: đúng mật khẩu, sai mật khẩu, không tồn tại, tài khoản bị khóa                                                                                                                                                                                       |
+| `pom.xml`                                                                                                                                                             | Spring Boot parent 4.0.9, Java 21; `spring-boot-starter-webmvc`, `-thymeleaf`, `-security`, `-validation`, `-jdbc`; `thymeleaf-extras-springsecurity6`; `mysql-connector-j`; test: `spring-boot-starter-test`, `-webmvc-test`, `-security-test`. Bản chuẩn: xem `pom.xml` đã chốt  |
+| `.gitignore`                                                                                                                                                          | Loại `target/`, `application-local.properties`, file IDE                                                                                                                                                                                                                  |
+| `README.md`                                                                                                                                                           | Cài đặt từ máy trống (bash/cmd/PowerShell), chạy, mở trình duyệt, tài khoản seed, lỗi thường gặp                                                                                                                                                                          |
+| `docs/er-diagram.md`                                                                                                                                                  | ER diagram (Mermaid), khớp `schema.sql`                                                                                                                                                                                                                                   |
+| `src/main/java/com/foodstore/FoodStoreApplication.java`                                                                                                               | `main()` — `SpringApplication.run` (web server nhúng, không cần cấu hình thêm)                                                                                                                                                                                            |
+| `common/BusinessException.java`                                                                                                                                       | `extends RuntimeException` — gốc của mọi lỗi nghiệp vụ; thông điệp tiếng Việt hiển thị được cho người dùng                                                                                                                                                                |
+| `common/GlobalExceptionHandler.java`                                                                                                                                  | `@ControllerAdvice` — `BusinessException` → quay lại trang trước (flash attribute `error`); `AccessDeniedException` → trang `403`; lỗi khác → `error.html`, ghi log đầy đủ nhưng **không** hiện stack trace cho người dùng                                                 |
+| `config/SecurityConfig.java`                                                                                                                                          | `@Configuration` + `@EnableMethodSecurity`: form login (`/login`), logout (POST `/logout`), CSRF **bật**, `PasswordEncoder` = `BCryptPasswordEncoder`; sinh quy tắc từ `Feature`: `GET <pathPrefix>/**` cần `<FEATURE>_VIEW`, method khác cần `<FEATURE>_EDIT`; `/login`, `/css/**`, `/js/**` công khai; còn lại cần đăng nhập |
+| `config/StoreProperties.java`                                                                                                                                         | `@ConfigurationProperties(prefix = "store")` (record) — VAT, ngày cảnh báo hết hạn, ngưỡng hạng, % giảm theo hạng, `loyalty.amount-per-point`                                                                                                                             |
+| `src/main/resources/application.properties`                                                                                                                           | Datasource (biến môi trường `DB_URL`/`DB_USERNAME`/`DB_PASSWORD`), `server.port`, `server.servlet.session.timeout`, `spring.thymeleaf.cache=false` (dev), `store.*`                                                                                                       |
+| `src/main/resources/schema.sql`                                                                                                                                       | `CREATE TABLE` cho 15 bảng đúng thứ tự khóa ngoại: `staff`, `categories`, `products`, `combo_components`, `dining_tables`, `customers`, `vouchers`, `orders`, `order_items`, `suppliers`, `ingredients`, `recipes`, `stock_imports`, `stock_import_items`, `payments`      |
+| `src/main/resources/data.sql`                                                                                                                                         | Seed: 4 staff (BCrypt), danh mục, món gồm ít nhất 1 combo, bàn, nguyên liệu + công thức, voucher (1 còn hạn, 1 hết hạn), khách hàng                                                                                                                                       |
+| `templates/layout/base.html`                                                                                                                                          | Khung chung (Thymeleaf layout fragment): thanh menu **chỉ hiện mục mà người dùng có quyền VIEW** (`sec:authorize`), tên người dùng, nút Đăng xuất (form POST có CSRF), vùng hiển thị flash `success`/`error`                                                              |
+| `templates/login.html`, `dashboard.html`, `error.html`, `static/css/app.css`                                                                                          | Trang đăng nhập (báo lỗi chung chung), dashboard, trang lỗi, CSS dùng chung                                                                                                                                                                                               |
+| `menu/ProductService`, `orders/OrderService`, `orders/TableService`, `inventory/InventoryService`, `customers/CustomerService`                                        | **Interface Service** (chỉ chữ ký — xem Contract). Owner module cài đặt trong `XxxServiceImpl` (`@Service`) cùng package                                                                                                                                                  |
+| `menu/Product`, `Food`, `Drink`, `Combo`, `ComboComponent`, `Category`; `orders/Order`, `OrderItem`, `OrderStatus`, `OrderType`; `customers/Customer`, `CustomerTier` | Model tối thiểu mà các interface tham chiếu — Foundation tạo bản đầu để cả dự án biên dịch được; owner module mở rộng sau                                                                                                                                                  |
+| `auth/*` (Phase 0 của M5)                                                                                                                                             | `Staff` + 4 vai trò, `Feature`, `AccessLevel`, `StaffRole`, `StaffAccount`, `StaffDao`/`JdbcStaffDao`, `StaffUserDetails`, `StaffUserDetailsService`, `LoginController`, `DashboardController`                                                                              |
+| `menu/CategoryDao`, `menu/JdbcCategoryDao`, `menu/CategoryController` + `templates/menu/categories.html`                                                              | **Mẫu hoàn chỉnh** DAO → controller → template (danh sách + thêm, Post-Redirect-Get, `th:action`, hiện flash) làm tham chiếu cho cả nhóm                                                                                                                                   |
+| `src/test/java/com/foodstore/auth/StaffUserDetailsServiceTest.java`, `StaffPermissionsTest.java`, `config/SecurityConfigTest.java`                                    | Test: nạp user (có, không có, bị khóa); `permissions()` 4 vai trò; MockMvc: chưa đăng nhập → `/login`, vai trò chỉ VIEW POST → `403`, POST thiếu CSRF → bị từ chối                                                                                                         |
 
 ## Contract: chữ ký Service chốt ở Phase 0
 
-Để 5 người làm song song mà không chờ nhau, các phương thức cross-module dưới đây phải có chữ ký cố định từ Phase 0. Phần cài đặt do owner module viết sau. Chỉ **thêm** phương thức mới, không đổi/xóa phương thức đã chốt.
+Các phương thức cross-module dưới đây có chữ ký cố định từ Phase 0; chỉ **thêm** phương thức mới, không đổi/xóa.
 
-| Interface (owner)       | Phương thức (chữ ký)                                                                                                                                                                       | Ai gọi        |
-|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| `ProductService` (M1)   | `Product getById(long id)`, `List<Product> findActive()`, `List<ComboComponent> getComponents(long comboId)`                                                                               | M2, M3        |
-| `OrderService` (M2)     | `Order getById(long id)`, `List<OrderItem> getItems(long orderId)`, `BigDecimal calcSubtotal(long orderId)`, `void markPaid(long orderId)`, `void attachCustomer(long orderId, long customerId)` | M3, M4        |
-| `TableService` (M2)     | `void release(long tableId)`                                                                                                                                                               | M4            |
-| `InventoryService` (M3) | `void deductForOrder(long orderId)`                                                                                                                                                        | M4            |
-| `CustomerService` (M4)  | `Optional<Customer> findById(long id)`, `void addPoints(long customerId, BigDecimal orderTotal)`                                                                                           | M2, M4, M5    |
-| `AuthService` (M5)      | `Staff login(String username, String password)`                                                                                                                                            | LoginFrame    |
-| `Screen` enum (M5)      | `MENU, TABLES, ORDERS, KITCHEN, INVENTORY, PAYMENTS, CUSTOMERS, STAFF, REPORTS`                                                                                                            | MainFrame     |
+| Interface (owner)       | Phương thức (chữ ký)                                                                                                                                                                       | Ai gọi            |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
+| `ProductService` (M1)   | `Product getById(long id)`, `List<Product> findActive()`, `List<ComboComponent> getComponents(long comboId)`                                                                               | M2, M3            |
+| `OrderService` (M2)     | `Order getById(long id)`, `List<OrderItem> getItems(long orderId)`, `BigDecimal calcSubtotal(long orderId)`, `void markPaid(long orderId)`, `void attachCustomer(long orderId, long customerId)` | M3, M4            |
+| `TableService` (M2)     | `void release(long tableId)`                                                                                                                                                               | M4                |
+| `InventoryService` (M3) | `void deductForOrder(long orderId)`                                                                                                                                                        | M4                |
+| `CustomerService` (M4)  | `Optional<Customer> findById(long id)`, `Optional<Customer> findByPhone(String phone)`, `void addPoints(long customerId, BigDecimal orderTotal)`                                           | M2, M4, M5        |
+| `Feature` enum (M5)     | `MENU, TABLES, ORDERS, KITCHEN, INVENTORY, PAYMENTS, CUSTOMERS, STAFF, REPORTS`, mỗi giá trị có `pathPrefix()`                                                                              | SecurityConfig, layout |
+| `Staff` (M5)            | `Map<Feature, AccessLevel> permissions()`, `canView(Feature)`, `canEdit(Feature)`                                                                                                          | UserDetails, layout |
 
-Ngữ nghĩa bắt buộc của một số phương thức (để các module hiểu giống nhau):
+Đăng nhập do **Spring Security** đảm nhiệm qua `StaffUserDetailsService` (không còn `AuthService.login`). Controller lấy người dùng hiện tại bằng `@AuthenticationPrincipal StaffUserDetails`.
 
-- `OrderService.markPaid(orderId)`: chỉ chuyển `SERVED → PAID`, bằng câu UPDATE có điều kiện; ném `BusinessException` nếu không có dòng nào bị đổi.
+Ngữ nghĩa bắt buộc:
+
+- `OrderService.markPaid`: chỉ `SERVED → PAID` bằng UPDATE có điều kiện; không có dòng nào bị đổi thì ném `BusinessException`.
 - `OrderService.attachCustomer`: chỉ cho đơn chưa `PAID`/`CANCELLED`.
 - `InventoryService.deductForOrder`: mở rộng combo; không bao giờ làm tồn kho âm; không ném lỗi chỉ vì thiếu hàng (SPEC D5).
 - Mọi phương thức ném `BusinessException` (hoặc lớp con) cho lỗi nghiệp vụ.
 
 ## Tasks
 
-- Task: Tạo khung Maven (Spring Boot parent, Java 21, các starter, `mysql-connector-j`, `spring-security-crypto`, JUnit 5 + Mockito)
+- Task: Khung Maven theo `pom.xml` chuẩn (Boot 4.0.9; Java 21; webmvc, Thymeleaf, Security, Validation, JDBC, MySQL Driver)
 
-  - Acceptance: `mvn clean package` thành công chỉ với lớp `FoodStoreApplication` placeholder; phiên bản Spring Boot ghim trong `pom.xml` tải được từ Maven Central
+  - Acceptance: `mvn clean package` thành công; phiên bản Spring Boot ghim tải được từ Maven Central
   - Verify: `mvn clean package`
   - Files: `pom.xml`
-- Task: `FoodStoreApplication` boot Spring rồi mở Swing UI trên EDT (không có web server)
+- Task: `FoodStoreApplication` + cấu hình web
 
-  - Acceptance: `mvn spring-boot:run` mở cửa sổ đăng nhập "FoodStore Management System - Đăng nhập" (cần `headless(false)` — Spring Boot mặc định headless sẽ làm Swing ném `HeadlessException`); đóng cửa sổ thì tiến trình tắt sạch
+  - Acceptance: `mvn spring-boot:run` khởi động server; truy cập http://localhost:8080 bị chuyển tới `/login`; log không có lỗi bean
   - Verify: chạy tay
-  - Files: `src/main/java/com/foodstore/FoodStoreApplication.java`
-- Task: Tạo `common/BusinessException` và quy ước exception (SPEC D3)
+  - Files: `FoodStoreApplication.java`, `application.properties`
+- Task: `BusinessException` + `GlobalExceptionHandler`
 
-  - Acceptance: `BusinessException extends RuntimeException`; `AuthenticationFailedException` kế thừa nó
-  - Verify: `mvn clean package`
-  - Files: `common/BusinessException.java`, `auth/AuthenticationFailedException.java`
-- Task: Viết `schema.sql` cho 15 bảng, đúng thứ tự khóa ngoại (lấy từ mục Data Model của `SPEC.md`)
+  - Acceptance: controller ném `BusinessException` thì người dùng quay lại trang trước và thấy thông báo tiếng Việt; lỗi bất ngờ hiện `error.html` không có stack trace; `403` hiện trang riêng
+  - Verify: test MockMvc + chạy tay
+  - Files: `common/BusinessException.java`, `common/GlobalExceptionHandler.java`, `templates/error.html`
+- Task: `schema.sql` cho 15 bảng (từ mục Data Model của `SPEC.md`)
 
-  - Acceptance: `mysql ... -e "source src/main/resources/schema.sql"` chạy không lỗi trên DB mới (MySQL 8.0.16+); có `CHECK` cho tồn kho không âm, số lượng đơn > 0, giá ≥ 0; engine InnoDB, charset utf8mb4
-  - Verify: chạy tay trên MySQL local (bash và PowerShell)
-  - Files: `src/main/resources/schema.sql`
-- Task: Viết `data.sql` — 4 staff (ADMIN, CASHIER, WAITER, CHEF), 2-3 danh mục, 6-8 sản phẩm gồm ít nhất 1 combo, 5 bàn, nguyên liệu với công thức, 2 voucher (1 còn hạn, 1 hết hạn), 2 khách hàng
+  - Acceptance: `mysql ... -e "source src/main/resources/schema.sql"` chạy sạch trên DB mới (MySQL 8.0.16+); có `CHECK` cho tồn kho không âm, số lượng đơn > 0, giá ≥ 0; InnoDB, utf8mb4
+  - Verify: chạy tay (bash và PowerShell)
+  - Files: `schema.sql`
+- Task: `data.sql` — 4 staff, 2-3 danh mục, 6-8 sản phẩm (ít nhất 1 combo), 5 bàn, nguyên liệu + công thức, 2 voucher (1 còn hạn, 1 hết hạn), 2 khách hàng
 
-  - Acceptance: `SELECT * FROM staff` ra 4 dòng với `password_hash` dạng BCrypt (không plaintext); dữ liệu đủ để mỗi module tự demo mà không cần module khác; tiếng Việt hiển thị đúng
+  - Acceptance: `staff.password_hash` là BCrypt (không plaintext); đủ dữ liệu để mỗi module tự demo; tiếng Việt hiển thị đúng
   - Verify: truy vấn tay
-  - Files: `src/main/resources/data.sql`
-- Task: Cấu hình `application.properties` cho datasource MySQL (biến môi trường hoặc file override nằm trong `.gitignore`) + các thuộc tính `store.vat-rate`, `store.expiry-warning-days`, `store.loyalty.*`
+  - Files: `data.sql`
+- Task: `SecurityConfig` — form login, logout POST, CSRF bật, quy tắc theo `Feature`
 
-  - Acceptance: app kết nối MySQL local khi khởi động, không có credential nào trong git; thiếu biến môi trường thì có thông báo lỗi dễ hiểu
-  - Verify: `git diff` không có mật khẩu; log báo khởi tạo datasource thành công
-  - Files: `src/main/resources/application.properties`, `.gitignore`, `config/AppConfig.java`, `config/StoreProperties.java`
-- Task: Khai báo interface Service theo bảng Contract + model tối thiểu; thêm `JdbcCategoryDao` mẫu và `PlaceholderPanel`
+  - Acceptance: chưa đăng nhập vào bất kỳ trang nào → `/login`; vai trò chỉ VIEW gửi POST tới feature đó nhận `403`; POST thiếu CSRF token bị từ chối; session hết hạn theo cấu hình
+  - Verify: `mvn test` (`SecurityConfigTest`)
+  - Files: `config/SecurityConfig.java`, `config/StoreProperties.java`
+- Task: Layout chung `base.html` + `login.html` + `dashboard.html` + CSS
 
-  - Acceptance: toàn bộ dự án biên dịch được khi các interface chưa có cài đặt. Phase 0 chưa có lớp nào `@Autowired` các interface này nên app vẫn khởi động được; từ khi một module bắt đầu inject interface của module khác, module kia phải có `XxxServiceImpl` (kể cả bản tạm ném `UnsupportedOperationException`) để không thiếu bean
-  - Verify: `mvn clean package`
-  - Files: các `XxxService.java`, `menu/CategoryDao.java`, `menu/JdbcCategoryDao.java`
-- Task: `Staff` hierarchy, `Screen`, `AccessLevel`, `AuthService` + `AuthServiceTest` (chi tiết ở `m5-staff-reports.md`, phần Phase 0)
+  - Acceptance: sau đăng nhập, menu chỉ hiện đúng mục theo vai trò (`sec:authorize`); nút Đăng xuất là form POST; flash `success`/`error` hiện được ở mọi trang dùng layout
+  - Verify: chạy tay với 4 tài khoản seed
+  - Files: `templates/layout/base.html`, `templates/login.html`, `templates/dashboard.html`, `static/css/app.css`
+- Task: Khai báo interface Service theo bảng Contract + model tối thiểu + mẫu Category (DAO → controller → template)
 
-  - Acceptance: đăng nhập seed đúng vai trò; sai mật khẩu/không tồn tại/bị khóa đều bị từ chối
+  - Acceptance: toàn bộ dự án biên dịch được khi các interface chưa có cài đặt; app khởi động được (bản `XxxServiceImpl` tạm ném `UnsupportedOperationException` nếu có lớp nào inject interface chưa cài đặt); trang `/menu/categories` chạy đủ thêm/liệt kê làm mẫu
+  - Verify: `mvn clean package`; chạy tay
+  - Files: các `XxxService.java`, `menu/CategoryDao.java`, `menu/JdbcCategoryDao.java`, `menu/CategoryController.java`, `templates/menu/categories.html`
+- Task: `Staff` hierarchy, `Feature`, `AccessLevel`, `StaffUserDetailsService` + test (chi tiết ở `m5-staff-reports.md`, Phase 0)
+
+  - Acceptance: đăng nhập seed đúng vai trò; sai mật khẩu/không tồn tại/bị khóa đều bị từ chối bằng cùng thông báo chung
   - Verify: `mvn test`
-  - Files: `auth/*`, `src/test/java/com/foodstore/auth/AuthServiceTest.java`
+  - Files: `auth/*`, `src/test/java/com/foodstore/auth/*`
 - Task: `docs/er-diagram.md` khớp `schema.sql`
 
-  - Acceptance: đủ 15 bảng và các quan hệ khóa ngoại; render được trên GitHub
+  - Acceptance: đủ 15 bảng và quan hệ khóa ngoại; render được trên GitHub
   - Verify: xem trên GitHub
   - Files: `docs/er-diagram.md`
-- Task: Viết `README.md` các bước chạy từ máy trống (tạo DB, nạp schema + data, đặt biến môi trường, `mvn spring-boot:run`, tài khoản seed, lỗi thường gặp)
+- Task: `README.md` cài đặt từ máy trống
 
-  - Acceptance: người chưa từng thấy dự án làm theo là chạy được, trên cả bash và PowerShell
+  - Acceptance: người chưa từng thấy dự án làm theo là chạy được và đăng nhập được, trên cả bash và PowerShell
   - Verify: Checkpoint D (`integration.md`)
   - Files: `README.md`
 
-## Checkpoint A (cuối phần việc của file này)
+## Checkpoint A
 
-Cả 5 người pull nhánh này, chạy `mvn clean package` và `mvn spring-boot:run` thành công trên máy mình trước khi Phase 1 (M1-M5) bắt đầu. Xem thêm `m5-staff-reports.md`, phần Phase 0 (`Staff` hierarchy, login) chạy song song và cũng là điều kiện của Checkpoint A.
+Cả 5 người pull nhánh này, chạy `mvn clean package` và `mvn spring-boot:run` thành công, đăng nhập được trên máy mình trước khi Phase 1 bắt đầu. Phần `Staff`/đăng nhập của M5 (Phase 0) chạy song song và cũng là điều kiện của Checkpoint A.
