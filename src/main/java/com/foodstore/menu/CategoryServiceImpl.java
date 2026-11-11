@@ -1,13 +1,10 @@
-package com.foodstore.menu.service;
+package com.foodstore.menu;
 
 import java.util.List;
 
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.foodstore.menu.dao.CategoryDao;
-import com.foodstore.menu.model.Category;
 
 
 @Service 

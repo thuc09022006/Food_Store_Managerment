@@ -1,9 +1,6 @@
-package com.foodstore.menu.service;
+package com.foodstore.menu;
 
 import java.util.List;
-
-import com.foodstore.menu.model.ComboComponent;
-import com.foodstore.menu.model.Product;
 
 public interface ProductService {
 

@@ -1,12 +1,9 @@
-package com.foodstore.menu.dao;
+package com.foodstore.menu;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import com.foodstore.menu.model.ComboComponent;
-import com.foodstore.menu.model.Product;
 
 public interface ProductDao {
 

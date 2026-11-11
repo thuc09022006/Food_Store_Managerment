@@ -1,3 +1,4 @@
+package com.foodstore.menu;
 // package com.foodstore.menu.web;
 
 // import org.springframework.web.bind.annotation.GetMapping;

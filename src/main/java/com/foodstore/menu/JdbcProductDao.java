@@ -1,4 +1,4 @@
-package com.foodstore.menu.dao;
+package com.foodstore.menu;
 
 
 
@@ -19,11 +19,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-
-import com.foodstore.menu.model.Combo;
-import com.foodstore.menu.model.ComboComponent;
-import com.foodstore.menu.model.Product;
-import com.foodstore.menu.model.ProductFactory;
 
 @Repository 
 public class JdbcProductDao implements ProductDao {

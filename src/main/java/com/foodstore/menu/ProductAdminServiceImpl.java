@@ -1,4 +1,4 @@
-package com.foodstore.menu.service;
+package com.foodstore.menu;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -9,12 +9,6 @@ import java.util.Set;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.foodstore.menu.dao.CategoryDao;
-import com.foodstore.menu.dao.ProductDao;
-import com.foodstore.menu.model.Combo;
-import com.foodstore.menu.model.ComboComponent;
-import com.foodstore.menu.model.Product;
 
 @Service 
 public class ProductAdminServiceImpl implements ProductAdminService{

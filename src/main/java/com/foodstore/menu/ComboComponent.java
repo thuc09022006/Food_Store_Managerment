@@ -1,4 +1,4 @@
-package com.foodstore.menu.model;
+package com.foodstore.menu;
 
 public class ComboComponent {
 

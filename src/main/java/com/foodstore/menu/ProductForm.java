@@ -1,4 +1,4 @@
-package com.foodstore.menu.web;
+package com.foodstore.menu;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

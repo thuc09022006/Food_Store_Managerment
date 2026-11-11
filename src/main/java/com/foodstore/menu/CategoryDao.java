@@ -1,9 +1,7 @@
-package com.foodstore.menu.dao;
+package com.foodstore.menu;
 
 import java.util.List;
 import java.util.Optional;
-
-import com.foodstore.menu.model.Category;
 
 public interface CategoryDao {
 

@@ -1,4 +1,4 @@
-package com.foodstore.menu.web;
+package com.foodstore.menu;
 
 import jakarta.validation.constraints.NotBlank;
 

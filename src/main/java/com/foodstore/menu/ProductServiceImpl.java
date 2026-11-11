@@ -1,14 +1,9 @@
-package com.foodstore.menu.service;
+package com.foodstore.menu;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.foodstore.menu.dao.ProductDao;
-import com.foodstore.menu.model.Combo;
-import com.foodstore.menu.model.ComboComponent;
-import com.foodstore.menu.model.Product;
 
 @Service 
 @Transactional(readOnly = true)
