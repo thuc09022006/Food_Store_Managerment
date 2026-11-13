@@ -115,3 +115,35 @@ INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, note) V
 INSERT INTO payments (id, order_id, voucher_id, subtotal, discount_amount, vat_amount, total, method, paid_at) VALUES
  (1, 1, NULL, 120000, 0, 9600, 129600, 'CASH',     NOW() - INTERVAL 1 DAY),
  (2, 2, NULL,  75000, 0, 6000,  81000, 'TRANSFER', NOW() - INTERVAL 1 DAY);
+
+-- ---------- GIAO HÀNG (M6) ----------
+-- 3 shipper (không đăng nhập hệ thống)
+INSERT INTO shippers (id, full_name, phone, vehicle_plate, is_active) VALUES
+ (1, 'Võ Văn Tài',    '0911000001', '59A1-123.45', TRUE),
+ (2, 'Đặng Minh Hải', '0911000002', '59B2-678.90', TRUE),
+ (3, 'Lý Thị Hoa',    '0911000003', NULL,          TRUE);
+
+-- 3 đơn giao ở 3 giai đoạn để demo: đã giao + đã thanh toán (hôm qua), mới tạo chờ bếp, bếp xong chờ shipper lấy.
+-- Đơn 3: DELIVERY đã PAID. Tiền hàng 110.000 + VAT 8% (8.800) = 118.800 → payments dưới đây (phí giao 15.000 KHÔNG nằm trong payments)
+INSERT INTO orders (id, table_id, customer_id, staff_id, order_type, status, created_at, note) VALUES
+ (3, NULL, 1,    2, 'DELIVERY', 'PAID',   NOW() - INTERVAL 1 DAY, 'Gọi trước khi tới'),
+ (4, NULL, NULL, 2, 'DELIVERY', 'NEW',    NOW() - INTERVAL 10 MINUTE, NULL),
+ (5, NULL, 2,    2, 'DELIVERY', 'SERVED', NOW() - INTERVAL 40 MINUTE, 'Không hành');
+
+INSERT INTO order_items (id, order_id, product_id, quantity, unit_price, note) VALUES
+ (5, 3, 3, 2, 55000, NULL),          -- 2 Bún chả               => subtotal 110.000
+ (6, 4, 1, 1, 55000, NULL),          -- 1 Phở bò
+ (7, 4, 5, 2,  5000, NULL),          -- 2 Trà đá                => subtotal  65.000
+ (8, 5, 8, 1, 65000, NULL);          -- 1 Combo Cơm gà + Cà phê => subtotal  65.000
+
+INSERT INTO payments (id, order_id, voucher_id, subtotal, discount_amount, vat_amount, total, method, paid_at) VALUES
+ (3, 3, NULL, 110000, 0, 8800, 118800, 'CASH', NOW() - INTERVAL 1 DAY);
+
+INSERT INTO deliveries (id, order_id, shipper_id, status, recipient_name, recipient_phone, address, delivery_fee,
+                        attempt_count, fail_reason, created_at, assigned_at, picked_up_at, delivered_at) VALUES
+ (1, 3, 1,    'DELIVERED', 'Nguyễn Văn An', '0901000001', '12 Lê Lợi, Quận 1',       15000, 1, NULL,
+     NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY),
+ (2, 4, NULL, 'PENDING',   'Hoàng Thị Mai', '0912345678', '45 Nguyễn Trãi, Quận 5',   15000, 0, NULL,
+     NOW() - INTERVAL 10 MINUTE, NULL, NULL, NULL),
+ (3, 5, 2,    'ASSIGNED',  'Trần Thị Bình', '0901000002', '78 Cách Mạng Tháng 8, Quận 3', 20000, 0, NULL,
+     NOW() - INTERVAL 40 MINUTE, NOW() - INTERVAL 5 MINUTE, NULL, NULL);

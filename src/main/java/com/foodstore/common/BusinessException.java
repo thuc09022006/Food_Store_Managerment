@@ -1,4 +1,4 @@
-package com.foodstore.menu;
+package com.foodstore.common;
 
 public class BusinessException extends RuntimeException {
 

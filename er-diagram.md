@@ -15,6 +15,8 @@ erDiagram
     staff ||--o{ orders : "tạo đơn"
     orders ||--|{ order_items : "gồm"
     orders ||--o| payments : "thanh toán một lần"
+    orders ||--o| deliveries : "giao hàng (đơn DELIVERY)"
+    shippers |o--o{ deliveries : "được phân công"
     vouchers |o--o{ payments : "áp dụng"
     suppliers ||--o{ stock_imports : "cung cấp"
     staff ||--o{ stock_imports : "lập phiếu"
@@ -77,7 +79,7 @@ erDiagram
         bigint table_id FK "nullable"
         bigint customer_id FK "nullable"
         bigint staff_id FK "NOT NULL"
-        enum order_type "DINE_IN TAKEAWAY"
+        enum order_type "DINE_IN TAKEAWAY DELIVERY"
         enum status "NEW PREPARING SERVED PAID CANCELLED"
         datetime created_at
         varchar note "nullable"
@@ -89,6 +91,29 @@ erDiagram
         int quantity "> 0"
         decimal unit_price "giá chụp lúc gọi"
         varchar note "nullable"
+    }
+    shippers {
+        bigint id PK
+        varchar full_name
+        varchar phone "UNIQUE"
+        varchar vehicle_plate "nullable"
+        boolean is_active "xóa mềm"
+    }
+    deliveries {
+        bigint id PK
+        bigint order_id FK "UNIQUE"
+        bigint shipper_id FK "nullable"
+        enum status "PENDING ASSIGNED DELIVERING DELIVERED FAILED CANCELLED"
+        varchar recipient_name
+        varchar recipient_phone
+        varchar address
+        decimal delivery_fee ">= 0"
+        int attempt_count "số lần đi giao"
+        varchar fail_reason "nullable"
+        datetime created_at
+        datetime assigned_at "nullable"
+        datetime picked_up_at "nullable"
+        datetime delivered_at "nullable"
     }
     suppliers {
         bigint id PK

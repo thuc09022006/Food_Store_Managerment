@@ -109,4 +109,4 @@ Bảng này suy ra từ phân quyền trong `SPEC.md`; nếu nhóm đổi phân 
 
 ## Stretch goals (không bắt buộc)
 
-Giao hàng, tách bill, trừ kho FIFO theo lô, xuất CSV, biểu đồ (Chart.js), AJAX tìm kiếm, đặt bàn trước, Testcontainers cho DAO test, kiểm quyền ở tầng service, đẩy cảnh báo tồn thấp tới trình duyệt (SSE/WebSocket).
+Tách bill, trừ kho FIFO theo lô, xuất CSV, biểu đồ (Chart.js), AJAX tìm kiếm, đặt bàn trước, Testcontainers cho DAO test, kiểm quyền ở tầng service, đẩy cảnh báo tồn thấp tới trình duyệt (SSE/WebSocket).

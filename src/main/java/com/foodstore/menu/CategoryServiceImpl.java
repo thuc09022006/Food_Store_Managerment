@@ -6,6 +6,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.foodstore.common.BusinessException;
+
 
 @Service 
 public class CategoryServiceImpl implements CategoryService {

@@ -10,6 +10,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.foodstore.common.BusinessException;
+
 @Service 
 public class ProductAdminServiceImpl implements ProductAdminService{
     

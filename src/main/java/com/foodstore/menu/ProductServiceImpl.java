@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.foodstore.common.BusinessException;
+
 @Service 
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {

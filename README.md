@@ -11,6 +11,7 @@ Tài liệu thiết kế: [`SPEC.md`](SPEC.md) · Kế hoạch: [`plan.md`](plan
 | M3 Inventory & Suppliers          | [`m3-inventory.md`](m3-inventory.md)         |
 | M4 Payments, Vouchers & Customers | [`m4-payments.md`](m4-payments.md)           |
 | M5 Staff, Auth & Reports          | [`m5-staff-reports.md`](m5-staff-reports.md) |
+| M6 Delivery (giao hàng)           | [`m6-delivery.md`](m6-delivery.md)           |
 | Tích hợp & demo                   | [`integration.md`](integration.md)           |
 
 ## Yêu cầu

@@ -20,7 +20,7 @@ Spec đối chiếu với mô tả bảng ở mục Data Model. **Nguồn duy nh
 4. **Plain JDBC qua `JdbcTemplate`**, không dùng JPA/Hibernate.
 5. **MySQL 8.0.16+** (từ bản này mới kiểm tra ràng buộc `CHECK`), InnoDB, một schema `foodstore_db`.
 6. **Tiền VND không có phần thập phân:** `DECIMAL(12,0)` trong DB, `BigDecimal` trong Java; cấm `double`/`float`; làm tròn `HALF_UP` về đồng.
-7. Phạm vi: ăn tại chỗ + mang đi, một chi nhánh, **nhiều nhân viên dùng đồng thời qua trình duyệt** (nên xử lý tranh chấp dữ liệu thật, xem D4). Giao hàng là stretch goal.
+7. Phạm vi: ăn tại chỗ + mang đi, một chi nhánh, **nhiều nhân viên dùng đồng thời qua trình duyệt** (nên xử lý tranh chấp dữ liệu thật, xem D4). Giao hàng (M6) đã được thêm, xem `m6-delivery.md`.
 8. "5 module" là **package/feature-area trong một app**, không phải 5 service triển khai riêng.
 9. Repo: https://github.com/thuc09022006/Food_Store_Managerment (công khai).
 
@@ -81,6 +81,12 @@ Xây dựng hệ thống web giúp nhân viên cửa hàng đồ ăn:
 | FR-17 | Đăng nhập/đăng xuất, phân quyền theo vai trò (xem/sửa), menu riêng cho từng vai trò                     | M5      |
 | FR-18 | Quản lý nhân viên (Admin)                                                                               | M5      |
 | FR-19 | Báo cáo: doanh thu theo ngày/tháng, món bán chạy, nguyên liệu tồn thấp                                  | M5      |
+| FR-20 | Tạo đơn giao hàng: người nhận, SĐT, địa chỉ, phí giao, các món (đơn loại `DELIVERY`)                    | M6      |
+| FR-21 | Quản lý shipper: thêm/sửa, ngừng/mở lại hoạt động, xem số đơn đang giữ                                  | M6      |
+| FR-22 | Phân công/đổi shipper (giới hạn số đơn đồng thời mỗi shipper)                                           | M6      |
+| FR-23 | Vòng đời giao hàng PENDING → ASSIGNED → DELIVERING → DELIVERED, và FAILED / CANCELLED; chỉ cho chuyển hợp lệ | M6 |
+| FR-24 | Chỉ lấy hàng đi giao khi bếp đã làm xong (đơn `SERVED`); giao thất bại bắt buộc ghi lý do, giao lại tối đa N lần | M6 |
+| FR-25 | Hủy đơn giao thì hủy luôn đơn hàng; theo dõi/lọc danh sách đơn giao theo trạng thái                       | M6      |
 
 ## Yêu cầu phi chức năng (bắt buộc)
 
@@ -129,7 +135,7 @@ Phần Auth của M5 (Phase 0) chạy song song với Foundation và chặn mọ
 
 ## Data Model (MySQL — `foodstore_db`)
 
-15 bảng, đúng thứ tự khóa ngoại. Sơ đồ: [`docs/er-diagram.md`](docs/er-diagram.md).
+17 bảng (15 bảng gốc + `shippers`, `deliveries` của M6), đúng thứ tự khóa ngoại. Sơ đồ: [`docs/er-diagram.md`](docs/er-diagram.md).
 
 | #  | Bảng                 | Module | Ghi chú                                                                               |
 |----|----------------------|--------|---------------------------------------------------------------------------------------|
@@ -140,7 +146,7 @@ Phần Auth của M5 (Phase 0) chạy song song với Foundation và chặn mọ
 | 5  | `dining_tables`      | M2     | `status` FREE/OCCUPIED/RESERVED                                                       |
 | 6  | `customers`          | M4     | `points`, `tier` NORMAL/SILVER/GOLD                                                   |
 | 7  | `vouchers`           | M4     | `discount_type` PERCENT/FIXED, `discount_value`, `min_order`, hạn dùng, giới hạn lượt |
-| 8  | `orders`             | M2     | `table_id`/`customer_id` nullable; `staff_id` NOT NULL (người tạo đơn); `status` NEW/PREPARING/SERVED/PAID/CANCELLED       |
+| 8  | `orders`             | M2     | `table_id`/`customer_id` nullable; `staff_id` NOT NULL (người tạo đơn); `order_type` DINE_IN/TAKEAWAY/DELIVERY; `status` NEW/PREPARING/SERVED/PAID/CANCELLED       |
 | 9  | `order_items`        | M2     | `unit_price` là giá **chụp** lúc gọi món                                              |
 | 10 | `suppliers`          | M3     |                                                                                       |
 | 11 | `ingredients`        | M3     | `stock_quantity`, `min_quantity` (đều `CHECK >= 0`)                                   |
@@ -148,6 +154,8 @@ Phần Auth của M5 (Phase 0) chạy song song với Foundation và chặn mọ
 | 13 | `stock_imports`      | M3     | `staff_id` NOT NULL (người lập phiếu)                                                  |
 | 14 | `stock_import_items` | M3     | `expiry_date` theo lô (nullable)                                                      |
 | 15 | `payments`           | M4     | `order_id` UNIQUE: một đơn thanh toán một lần                                         |
+| 16 | `shippers`           | M6     | `phone` UNIQUE; `is_active` (xóa mềm); không đăng nhập hệ thống                       |
+| 17 | `deliveries`         | M6     | `order_id` UNIQUE (1-1 với đơn DELIVERY); `status`, `attempt_count`, mốc thời gian      |
 
 Hạn sử dụng lưu theo lô nhập; `ingredients.stock_quantity` chỉ là tổng tồn. Kho không trừ theo lô (FIFO là stretch goal) nên cảnh báo hết hạn có thể báo cả lô đã dùng hết — hạn chế đã biết, ghi rõ trên trang cảnh báo.
 
@@ -345,4 +353,4 @@ Bước nào ném exception thì rollback tất cả; controller bắt lỗi qua
 4. **Xác nhận D5/D6:** chính sách kho khi thiếu nguyên liệu và thời điểm trừ kho.
 5. **Xác nhận bảng phân quyền:** đặc biệt Cashier được EDIT `ORDERS` (để tạo đơn mang đi).
 6. **CSS:** tự viết hay Bootstrap?
-7. Stretch goals (không bắt buộc): giao hàng, tách bill, trừ kho FIFO theo lô, xuất CSV, biểu đồ (Chart.js), AJAX tìm kiếm, đặt bàn trước, Testcontainers, kiểm quyền ở tầng service.
+7. Stretch goals (không bắt buộc): tách bill, trừ kho FIFO theo lô, xuất CSV, biểu đồ (Chart.js), AJAX tìm kiếm, đặt bàn trước, Testcontainers, kiểm quyền ở tầng service.

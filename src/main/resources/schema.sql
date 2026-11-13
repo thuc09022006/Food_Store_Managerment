@@ -84,10 +84,10 @@ CREATE TABLE vouchers (
 -- 4. Đơn hàng (M2)
 CREATE TABLE orders (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    table_id    BIGINT NULL,                                   -- NULL nếu mang đi; service bắt buộc có khi DINE_IN
+    table_id    BIGINT NULL,                                   -- NULL nếu mang đi/giao hàng; service bắt buộc có khi DINE_IN
     customer_id BIGINT NULL,                                   -- NULL nếu khách vãng lai
     staff_id    BIGINT NOT NULL,                               -- nhân viên tạo đơn (lấy từ người đang đăng nhập)
-    order_type  ENUM('DINE_IN','TAKEAWAY') NOT NULL,
+    order_type  ENUM('DINE_IN','TAKEAWAY','DELIVERY') NOT NULL,   -- DELIVERY: thông tin giao nằm ở bảng deliveries
     status      ENUM('NEW','PREPARING','SERVED','PAID','CANCELLED') NOT NULL DEFAULT 'NEW',
     created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     note        VARCHAR(255),
@@ -107,6 +107,37 @@ CREATE TABLE order_items (
     note       VARCHAR(255),
     FOREIGN KEY (order_id)   REFERENCES orders(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+-- 4b. Giao hàng (M6) — chỉ THÊM bảng mới, không đổi bảng cũ ngoài việc thêm 'DELIVERY' vào orders.order_type
+-- Shipper không đăng nhập hệ thống (nhân viên điều phối cập nhật trạng thái), nên tách khỏi bảng staff.
+CREATE TABLE shippers (
+    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    full_name     VARCHAR(100) NOT NULL,
+    phone         VARCHAR(20)  NOT NULL UNIQUE,
+    vehicle_plate VARCHAR(20),
+    is_active     BOOLEAN NOT NULL DEFAULT TRUE                -- xóa mềm: shipper đã từng giao chỉ ngừng hoạt động
+);
+
+CREATE TABLE deliveries (
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id        BIGINT NOT NULL UNIQUE,                    -- mỗi đơn có tối đa một lần giao (giao lại = cùng dòng, attempt_count tăng)
+    shipper_id      BIGINT NULL,                               -- NULL khi chưa phân công
+    status          ENUM('PENDING','ASSIGNED','DELIVERING','DELIVERED','FAILED','CANCELLED') NOT NULL DEFAULT 'PENDING',
+    recipient_name  VARCHAR(100) NOT NULL,
+    recipient_phone VARCHAR(20)  NOT NULL,
+    address         VARCHAR(255) NOT NULL,
+    delivery_fee    DECIMAL(12,0) NOT NULL DEFAULT 0 CHECK (delivery_fee >= 0),
+    attempt_count   INT NOT NULL DEFAULT 0 CHECK (attempt_count >= 0),  -- số lần shipper đã lấy hàng đi giao
+    fail_reason     VARCHAR(255) NULL,                         -- lý do thất bại gần nhất
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    assigned_at     DATETIME NULL,
+    picked_up_at    DATETIME NULL,
+    delivered_at    DATETIME NULL,
+    FOREIGN KEY (order_id)   REFERENCES orders(id),
+    FOREIGN KEY (shipper_id) REFERENCES shippers(id),
+    INDEX idx_deliveries_status (status),
+    INDEX idx_deliveries_shipper (shipper_id, status)
 );
 
 -- 5. Kho và nhà cung cấp (M3)
