@@ -165,7 +165,7 @@ public class JdbcProductDao implements ProductDao {
             ps.setString(2, product.getName());
             ps.setBigDecimal(3, product.getPrice());
             ps.setString(4, product.getDescription());
-            ps.setBoolean(5, true);
+            ps.setBoolean(5, product.isActive());
             ps.setString(6, product.getType());
 
             return ps;
@@ -209,7 +209,10 @@ public class JdbcProductDao implements ProductDao {
     @Override 
     public void delete(long id) {
         String sql = "DELETE FROM products WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+        int rows = jdbcTemplate.update(sql, id);
+        if(rows == 0) {
+            throw new IllegalStateException("Không tìm thấy sản phẩm để xóa");
+        }
     }
 
     @Override 

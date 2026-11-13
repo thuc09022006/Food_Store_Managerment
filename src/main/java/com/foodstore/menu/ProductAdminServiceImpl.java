@@ -55,20 +55,20 @@ public class ProductAdminServiceImpl implements ProductAdminService{
         }
 
         String type = product.getType();
-        if(!List.of("FOOD", "DRINK", "COMBO").contains(type)) {
+        if(type == null || !List.of("FOOD", "DRINK", "COMBO").contains(type)) {
             throw new BusinessException("Loại sản phẩm không hợp lệ!");
         }
     }
 
 
-    private void validateCategory(long categoryId) {
-        if(categoryId <= 0 || categoryDao.findById(categoryId).isEmpty()) {
+    private void validateCategory(Long categoryId) {
+        if(categoryId == null || categoryId <= 0 || categoryDao.findById(categoryId).isEmpty()) {
             throw new BusinessException("Danh mục không tồn tại!");
         }
     }
 
 
-    private List<ComboComponent> validateComponents(Product product, List<ComboComponent> components) {
+    private List<ComboComponent> validateComponents(Product product, List<ComboComponent> components, boolean comboActive) {
         if(!(product instanceof Combo)) {
             if(components != null && !components.isEmpty()) {
                 throw new BusinessException("Chỉ Combo mới có thành phần!");
@@ -89,15 +89,17 @@ public class ProductAdminServiceImpl implements ProductAdminService{
                 throw new BusinessException("Thành phần combo không hợp lệ!");
             }
 
-            long componentId = component.getProduct().getId();
+            Long componentProductId = component.getProduct().getId();
 
-            if(componentId <= 0) {
+            if(componentProductId == null || componentProductId <= 0) {
                 throw new BusinessException("Món trong combo không hợp lệ!");
             }
 
             if(component.getQuantity() < 1) {
                 throw new BusinessException("Số lượng thành phần phải từ 1 trở lên!");
             }
+
+            long componentId = componentProductId;
 
             if(!componentIds.add(componentId)){   //nếu dữ liệu thêm vào mà trùng với phần tử trong componentIds thì false, không trùng thì true
                 throw new BusinessException("Không được thêm trùng món vào combo!");
@@ -110,7 +112,7 @@ public class ProductAdminServiceImpl implements ProductAdminService{
                 throw new BusinessException("Không được đặt combo bên trong combo khác!");
             }
 
-            if(product.isActive() && !actualProduct.isActive()) {
+            if(comboActive && !actualProduct.isActive()) {
                 throw new BusinessException("Combo đang bán không được chưa món ngừng bán");
             }
 
@@ -127,7 +129,7 @@ public class ProductAdminServiceImpl implements ProductAdminService{
 
         for(ComboComponent component : components) {
             if(!component.getProduct().isActive()) {
-                throw new BusinessException("Không thể bán Combo vì món " + component.getProduct().getName() + "chưa được bán");
+                throw new BusinessException("Không thể bán Combo vì món " + component.getProduct().getName() + " chưa được bán");
             }
         }
     }
@@ -146,7 +148,7 @@ public class ProductAdminServiceImpl implements ProductAdminService{
         validateProduct(product);
         validateCategory(product.getCategoryId());
 
-        List<ComboComponent> validComponents = validateComponents(product, components);
+        List<ComboComponent> validComponents = validateComponents(product, components, product.isActive());
 
         long newId = productDao.save(product);
 
@@ -164,6 +166,10 @@ public class ProductAdminServiceImpl implements ProductAdminService{
             throw new BusinessException("Thông tin món không hợp lệ");
         }
 
+        if(product.getId() == null || product.getId() <= 0) {
+            throw new BusinessException("Thông tin món cần cập nhật không hợp lệ");
+        }
+
         Product current = productDao.findById(product.getId()).orElseThrow(() -> 
             new BusinessException("Không tìm thấy món cần cập nhật"));
 
@@ -174,7 +180,7 @@ public class ProductAdminServiceImpl implements ProductAdminService{
         validateProduct(product);
         validateCategory(product.getCategoryId());
 
-        List<ComboComponent> validComponents = validateComponents(product, components);
+        List<ComboComponent> validComponents = validateComponents(product, components, current.isActive());
 
         productDao.update(product);
 

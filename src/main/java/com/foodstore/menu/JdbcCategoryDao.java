@@ -90,7 +90,10 @@ public class JdbcCategoryDao implements CategoryDao {
     @Override 
     public void delete(long id) {
         String sql = "DELETE FROM categories WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+        int rows = jdbcTemplate.update(sql, id);
+        if(rows == 0) {
+            throw new IllegalStateException("Không tìm thấy danh mục để xóa");
+        }
     }
 
     @Override 
@@ -111,7 +114,7 @@ public class JdbcCategoryDao implements CategoryDao {
          String sql = """
                 SELECT COUNT(*)
                 FROM categories
-                WHERE name = ?
+                WHERE LOWER(name) = LOWER(?)
                 """;
 
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, name.trim());

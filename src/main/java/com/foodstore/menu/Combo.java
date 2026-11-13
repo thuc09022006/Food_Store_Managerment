@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Combo extends Product {
 
@@ -45,8 +46,10 @@ public class Combo extends Product {
 
             boolean duplicated = newComponents.stream()
                     .anyMatch(existing ->
-                            existing.getProduct().getId()
-                                    == component.getProduct().getId());
+                            Objects.equals(
+                                    existing.getProduct().getId(),
+                                    component.getProduct().getId()
+                            ));
 
             if (duplicated) {
                 throw new IllegalArgumentException("Không được trùng món trong combo");
@@ -69,8 +72,10 @@ public class Combo extends Product {
 
         boolean duplicated = components.stream()
                 .anyMatch(existing ->
-                        existing.getProduct().getId()
-                                == component.getProduct().getId());
+                        Objects.equals(
+                                existing.getProduct().getId(),
+                                component.getProduct().getId()
+                        ));
 
         if (duplicated) {
             throw new IllegalArgumentException("Món đã tồn tại trong combo");
